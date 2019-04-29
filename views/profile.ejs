@@ -1,0 +1,41 @@
+<html>
+    <head>
+    </head>
+    <body>
+
+<div>
+    <% if (message.length > 0) { %>
+      <div  ><%= message %></div>
+    <% } else {%>
+      <div >
+        <div >
+          <h3><%=data[0].product_name%></h3>
+        </div>
+        <div >
+          <div >
+            <div  > <img height="100" width="100" alt="Product Pic" src="http://localhost:2000/images/<%=data[0].image%>" > </div>
+            <div > <img height="100" width="100" alt="Product Pic" src="http://localhost:2000/public/images/<%=data[0].image2%>" > </div>
+            <div > <img height="100" width="100" alt="Product Pic" src="http://localhost:2000/public/images/<%=data[0].image3%>" > </div>
+            <div > 
+              <table >
+                <tbody>
+                  <tr>
+                    <td>Product Name :</td>
+                    <td><%=data[0].product_name%></td>
+                  </tr>
+                  <tr>
+                    <td>Price</td>
+                    <td><%=data[0].price%></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% } %>
+    </div>
+  </div>
+</body>
+</html>
+     
