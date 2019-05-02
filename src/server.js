@@ -1,6 +1,5 @@
 const express = require('express');
 const path = require('path');
-const fileUpload = require('express-fileupload');
 const mongoose = require('mongoose');
 const app = express();
 
@@ -16,7 +15,6 @@ mongoose.connect('mongodb+srv://amit:ajmer@hackgod-4akca.mongodb.net/test?retryW
     .catch(err => console.log(err));
 
 app.set('view engine', 'ejs');
-app.use(fileUpload());
 app.use('/', require('./routes/index'));
 app.use('/product', require('./routes/product'));
 app.use('/', express.static(path.join(__dirname, '../views')));

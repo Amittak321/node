@@ -4,6 +4,29 @@ const router = express.Router();
 const bodyParser = require('body-parser');
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 const Product = require('../model/products');
+const multer = require('multer');
+const path = require('path');
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'public/images')
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname)
+    }
+})
+
+const upload = multer({
+    storage: storage,
+    fileFilter: function (req, file, callback) {
+        var ext = path.extname(file.originalname);
+        if (ext !== '.png' && ext !== '.jpg' && ext !== '.gif' && ext !== '.jpeg') {
+            return callback(new Error('Only images are allowed'))
+        }
+        callback(null, true)
+    }
+}).any()
+
 
 router.get('/', (req, res) => {
       res.render('product.ejs')
@@ -24,56 +47,40 @@ router.get('/profile/:id', (req, res) => {
 
 //getting product info form web page
 router.post('/', urlencodedParser, (req, res) => {
-      const post = req.body;
-      const product_name = post.product_name;
-      const price = post.price;
-      const quantity = post.quantity;
-
-      if (!req.files) {
-            return res.status(400).send('No files were uploaded.');
-      }
-      else {
-            let message = "";
-            const file = req.files.uploaded_image1;
-            const file2 = req.files.uploaded_image2;
-            const file3 = req.files.uploaded_image3;
-            const img_name = file.name;
-            const img_name2 = file2.name;
-            const img_name3 = file3.name;
-
-            if (file.mimetype == "image/jpeg" || file.mimetype == "image/png" || file.mimetype == "image/gif") {
-
-                  file.mv('public/images/' + file.name, function (err) {
-
-                        if (err) {
-
-                              return res.status(500).send(err);
-                        }
-                        const product = new Product({
-                              _id: new mongoose.Types.ObjectId(),
-                              productName: product_name,
-                              image1: img_name,
-                              image2: img_name2,
-                              image3: img_name3,
-                              price: price,
-                              quantity: quantity
+      console.log(req.files);
+      upload(req, res, function (err) {
+            if (err instanceof multer.MulterError) {
+                // A Multer error occurred when uploading.
+                console.log(err);
+            } else if (err) {
+                // An unknown error occurred when uploading.
+                console.log(err)
+            }
+             // Everything went fine.
+            if((req.files).length > 0){
+                  const product = new Product({
+                        _id: new mongoose.Types.ObjectId(),
+                        productName: req.body.product_name,
+                        image1: req.files[0].originalname,
+                        image2: req.files[1].originalname,
+                        image3: req.files[2].originalname,
+                        price: req.body.price,
+                        quantity: req.body.quantity
+                    })
+                    
+                    product
+                        .save()
+                        .then(result => {
+                              console.log(result);
+                              res.redirect('product/profile/' + result._id);
+                    
                         })
-
-                        product
-                              .save()
-                              .then(result => {
-                                    console.log(result);
-                                    res.redirect('product/profile/' + result._id);
-
-                              })
-                              .catch(err => console.log(err));
-                  });
+                        .catch(err => console.log(err));
             }
-            else {
-                  message = "select image only";
-                  res.render('product', { message: message });
+            else{
+                console.log("Empty array");
             }
-      }
+      })
 });
 
 module.exports = router;
